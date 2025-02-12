@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYRKE 쇼핑몰</title>
+
+<!-- ✅ Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script> <!-- 🔥 Firestore 추가 -->
+
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="app.js"></script>
+</head>
+<body>
+    <header>
+        <div id="brand"><a href="index.html">KYRKE</a></div>
+        <nav id="nav-menu">
+            <a href="product.html">PRODUCT</a>
+            <a href="news.html">NEWS</a>
+            <a href="gallery.html">GALLERY</a>
+        </nav>
+        <div id="auth-links">
+            <p><a href="login.html">로그인</a> 또는 <a href="signup.html">회원가입</a></p>
+        </div>
+        <div id="user-menu" class="hidden">
+            <a href="mypage.html">마이페이지</a>
+            <a href="#" onclick="logout()">로그아웃</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="home">
+            <div id="main-banner">
+                <img src="banner.jpg" alt="Main Banner" style="width: 100%; max-height: 400px; object-fit: cover;">
+            </div>
+            <section id="featured-content">
+                <h2>Latest Updates</h2>
+                <div id="latest-products"></div>
+                <div id="latest-news"></div>
+                <div id="latest-gallery"></div>
+            </section>
+        </section>
+    </main>
+</body>
+</html>

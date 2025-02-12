@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRODUCT - KYRKE</title>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="app.js"></script>
+</head>
+<body>
+    <header>
+        <div id="brand"><a href="index.html">KYRKE</a></div>
+        <nav id="nav-menu">
+            <a href="product.html">PRODUCT</a>
+            <a href="news.html">NEWS</a>
+            <a href="gallery.html">GALLERY</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="product">
+            <h2>PRODUCT</h2>
+            
+            <!-- ✅ 관리자만 보이는 상품 추가 폼 -->
+            <div id="admin-product-controls" class="hidden">
+                <input type="text" id="product-name" placeholder="상품명">
+                <input type="number" id="product-price" placeholder="가격">
+                <input type="file" id="product-image" accept="image/*">
+                <button onclick="uploadProduct()">상품 추가</button>
+            </div>
+            
+            <div id="product-banner"></div>
+            <div id="product-list" class="product-grid">상품 불러오는 중...</div>
+        </section>
+    </main>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
+                        if (doc.exists && doc.data().role === "admin") {
+                            document.getElementById("admin-product-controls").classList.remove("hidden");
+                        }
+                    });
+                }
+            });
+
+            function uploadProduct() {
+                const name = document.getElementById("product-name").value;
+                const price = document.getElementById("product-price").value;
+                const file = document.getElementById("product-image").files[0];
+                if (!name || !price || !file) return alert("모든 필드를 입력하세요.");
+
+                const storageRef = firebase.storage().ref("products/" + file.name);
+                storageRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        firebase.firestore().collection("products").add({
+                            name: name,
+                            price: price,
+                            imageUrl: url,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }).then(() => {
+                            alert("상품이 등록되었습니다!");
+                            location.reload();
+                        });
+                    });
+                });
+            }
+
+            function loadProducts() {
+                const productList = document.getElementById("product-list");
+                productList.innerHTML = "";
+                
+                firebase.firestore().collection("products").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+                    snapshot.docs.forEach(doc => {
+                        const data = doc.data();
+                        const productElement = document.createElement("div");
+                        productElement.classList.add("product-item");
+                        productElement.innerHTML = `
+                            <img src="${data.imageUrl}" alt="${data.name}">
+                            <h3>${data.name}</h3>
+                            <p>₩${data.price}</p>
+                            <a href="product_detail.html?id=${doc.id}">상세보기</a>
+                        `;
+                        productList.appendChild(productElement);
+                    });
+                });
+            }
+
+            loadProducts();
+        });
+    </script>
+    
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .product-item {
+            text-align: center;
+        }
+        .product-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .hidden { display: none; }
+    </style>
+</body>
+</html>
